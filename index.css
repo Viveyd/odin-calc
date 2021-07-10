@@ -24,12 +24,14 @@ main{
                          "num-0 num-0 point equals";
 }
 #io-display, .numerals, .operator{
-    border: 1px solid black;
     width: 100%;
 }
 #io-display{
     grid-area: io;
+    overflow: auto;
+    border: 1px solid black;
 }
+
 #num-0{
     grid-area: num-0;
 }
