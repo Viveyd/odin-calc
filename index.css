@@ -1,0 +1,86 @@
+html, body{
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+}
+body{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+}
+main{
+    width: 250px;
+    height: 300px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: repeat(6, 1fr);
+    grid-template-areas: "io io io delete"
+                         "clear divide multi minus"
+                         "num-7 num-8 num-9 plus"
+                         "num-4 num-5 num-6 plus"
+                         "num-1 num-2 num-3 equals"
+                         "num-0 num-0 point equals";
+}
+#io-display, .numerals, .operator{
+    border: 1px solid black;
+    width: 100%;
+}
+#io-display{
+    grid-area: io;
+}
+#num-0{
+    grid-area: num-0;
+}
+#num-1{
+    grid-area: num-1;
+}
+#num-2{
+    grid-area: num-2;
+}
+#num-3{
+    grid-area: num-3;
+}
+#num-4{
+    grid-area: num-4;
+}
+#num-5{
+    grid-area: num-5;
+}
+#num-6{
+    grid-area: num-6;
+}
+#num-7{
+    grid-area: num-7;
+}
+#num-8{
+    grid-area: num-8;
+}
+#num-9{
+    grid-area: num-9;
+}
+#plus-btn{
+    grid-area: plus;
+}
+#minus-btn{
+    grid-area: minus;
+}
+#divide-btn{
+    grid-area: divide;
+}
+#times-btn{
+    grid-area: multi;
+}
+#point-btn{
+    grid-area: point;
+}
+#equals-btn{
+    grid-area: equals;
+}
+#del-btn{
+    grid-area: delete;
+}
+#clear-btn{
+    grid-area: clear;
+}
