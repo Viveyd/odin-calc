@@ -27,6 +27,9 @@ main{
     width: 100%;
 }
 #io-display{
+    display: flex;
+    flex-direction: row-reverse;
+    align-items: center;
     grid-area: io;
     overflow: auto;
     border: 1px solid black;
