@@ -1,3 +1,90 @@
+let result = 0;
+let overwrite= true;
+let point = document.getElementById('point-btn');
+let dataStore = {operand1: null, operator: null, operand2: null};
+let ioDisplay = document.getElementById('io-display');
+let main = document.getElementsByTagName('main')[0];
+let dotExists = false;
+
+ioDisplay.textContent = 0;
+//Click event listeners
+main.addEventListener('click', (e) => registerInput(e));
+//Keydown event listeners
+document.addEventListener('keydown', (e)=>{
+    if(e.key == 'F5' || e.key == 'F12') ;
+    else e.preventDefault();
+    if(e.key.match(/[0-9]/) && !e.key.includes('F')){
+        if(overwrite == true){
+            displayOutput(e.key, overwrite);
+        }
+        else displayOutput(e.key);
+        overwrite = false;
+        if(dataStore['operand1']!=null && dataStore['operator']!=null){
+            dataStore['operand2'] = ioDisplay.textContent;
+        }
+    }
+    else if(e.key == 'Enter' || e.key == '+' || e.key == '-' || e.key == '*' || e.key == '/'){
+        if(e.key == 'Enter'){
+            if(dataStore['operand1'] != null && dataStore['operator'] != null && dataStore['operand2'] != null){
+                result = operate(dataStore['operand1'], dataStore['operator'], dataStore['operand2']);
+                overwrite = true;
+                displayOutput(result, overwrite);
+                dataStore['operand1'] = result;
+                dataStore['operand2'] = null;
+            }
+            else{
+               return 0;
+            }
+        }
+        else{
+            if(dataStore['operand1']==null){
+                dataStore['operand1'] =ioDisplay.textContent;
+                overwrite = true;
+                dataStore['operator'] = e.key;
+            }
+            else if(dataStore['operand1'] != null && dataStore['operator'] != null && dataStore['operand2'] != null){
+                result = operate(dataStore['operand1'], dataStore['operator'], dataStore['operand2']);
+                overwrite = true;
+                displayOutput(result, overwrite);
+                dataStore['operand1'] = result;
+                dataStore['operand2'] = null;
+                dataStore['operator'] = e.key;
+            }
+            else{
+                dataStore['operator'] = e.key;
+            }
+        }
+    }
+    else if(e.key == 'Delete') clearAll();
+    else if(e.key == 'Backspace') deleteLastChar();
+    else if(e.key == '.'){
+        if(ioDisplay.textContent == '0'){
+            displayOutput('.');
+            dotExists = true;
+            overwrite = false;
+        } 
+        else if(dotExists && dataStore['operand1'] != null && dataStore['operator'] != null){
+            displayOutput('0.', overwrite);
+            dotExists = true;
+            overwrite = false;
+        }
+        else if(dotExists){
+            return 0;
+        }
+        else{
+            if(overwrite == true){
+                displayOutput('.', overwrite);
+                overwrite = false;
+            } 
+            else displayOutput('.')
+            dotExists = true;
+        }
+        
+    } ;
+    if(ioDisplay.textContent.includes('.')) dotExists = true;
+    else dotExists = false;
+})
+
 function getSum(num1, num2){
     return num1 + num2;
 }
@@ -11,28 +98,61 @@ function getQuotient(num1, num2){
     return num1 / num2;
 }
 function operate(num1, operator, num2){
+    let returnVal;
     if(operator == "/" && num2 == 0){
         clearAll();
         return alert(`Can't divide by zero!`);
     } 
     num1 = Number(num1);
     num2 = Number(num2);
-    console.log(dataStore);
     switch(operator){
         case "+":
-            return getSum(num1, num2);
+            returnVal = getSum(num1, num2);
+            break;
         case "-":
-            return getDiff(num1, num2);
+            returnVal = getDiff(num1, num2);
+            break;
         case "*":
-            return getProduct(num1, num2);
+            returnVal = getProduct(num1, num2);
+            break;
         case "/":
-            return getQuotient(num1, num2);
+            returnVal = getQuotient(num1, num2);
+            break;
     }
+    if(returnVal%1 != 0) returnVal = Number(parseFloat(returnVal).toFixed(2));
+    console.log(`${num1} ${operator} ${num2} = ${returnVal}`);
+    return returnVal;
 }
-let operatorClicked = true;
 function registerInput(e){
     e.preventDefault();
+    //Passes numeric key text content to display function, overwrite included if more appropriate (e.g. after pressing operator)
     if(e.target.classList.contains('numerals')){
+        if(e.target == point){
+            if(ioDisplay.textContent == '0'){
+                displayOutput('.');
+                dotExists = true;
+                overwrite = false;
+                return 0;
+            } 
+            else if(dotExists && dataStore['operand1'] != null && dataStore['operator'] != null){
+                displayOutput('0.', overwrite);
+                dotExists = true;
+                overwrite = false;
+                return 0;
+            }
+            else if(dotExists){
+                return 0;
+            }
+            else{
+                if(overwrite == true){
+                    displayOutput('0.', overwrite);
+                    overwrite = false;
+                } 
+                else displayOutput('.')
+                dotExists = true;
+                return 0;
+            }
+        }
         if(overwrite == true){
             displayOutput(e.target.textContent, overwrite);
         } 
@@ -42,20 +162,23 @@ function registerInput(e){
             dataStore['operand2'] = ioDisplay.textContent;
         }
     }
+    // If you clicked an operator:
     else if(e.target.classList.contains('operator')){
+        // Check if operator == equal, and all variables for operate func is ready
         if(e.target.getAttribute('id') == 'equals-btn'){
             if(dataStore['operand1'] != null && dataStore['operator'] != null && dataStore['operand2'] != null){
                 result = operate(dataStore['operand1'], dataStore['operator'], dataStore['operand2']);
-                if(result%1 != 0) result = parseFloat(result).toFixed(2);
                 overwrite = true;
                 displayOutput(result, overwrite);
                 dataStore['operand1'] = result;
                 dataStore['operand2'] = null;
             }
             else{
-                return alert('Invalid input');
+                return 0;
             }
         }
+        // If any other operator then check if all variables for operate func is ready. If all ready, then compute and display output and prep for next calculation
+        // If not then just store the current display input as operand1.
         else{
             if(dataStore['operand1']==null){
                 dataStore['operand1'] =ioDisplay.textContent;
@@ -65,7 +188,6 @@ function registerInput(e){
             else if(dataStore['operand1'] != null && dataStore['operator'] != null && dataStore['operand2'] != null){
                 result = operate(dataStore['operand1'], dataStore['operator'], dataStore['operand2']);
                 overwrite = true;
-                if(result%1 != 0) result = parseFloat(result).toFixed(2);
                 displayOutput(result, overwrite);
                 dataStore['operand1'] = result;
                 dataStore['operand2'] = null;
@@ -76,6 +198,7 @@ function registerInput(e){
             }
         }
     }
+    // AC/CE if their button is pressed
     else if(e.target.classList.contains('util') == true){
         if(e.target.getAttribute('id') == 'clear-btn'){
             clearAll();
@@ -84,10 +207,11 @@ function registerInput(e){
             deleteLastChar();
         }
     }
-    if(ioDisplay.textContent.includes('.') == true) point.disabled = true;
-    else point.disabled = false;
-    
+    //  Check for point after every input + enable/disable accordingly
+    if(ioDisplay.textContent.includes('.')) dotExists = true;
+    else dotExists = false;
 }
+// Remove last character entry
 function deleteLastChar(){
     let ioDisplayText = ioDisplay.textContent.split('');
     ioDisplayText.pop();
@@ -95,11 +219,12 @@ function deleteLastChar(){
     dataStore['operand1'] = ioDisplay.textContent;
     }
 
+// Set display content to none and reset dataStore values to default
 function clearAll(){
     dataStore = {operand1: null, operator: null, operand2: null};
-    ioDisplay.textContent = "";
+    ioDisplay.textContent = "0";
 }
-
+// Display output by appending to display unless overwrite explicitly stated
 function displayOutput(output, overwrite){
     if(overwrite){
         ioDisplay.textContent = output;
@@ -108,20 +233,5 @@ function displayOutput(output, overwrite){
     else ioDisplay.textContent += output;
 }
 
-let lastOperator;
-let currentOperand;
-let result = 0;
-let overwrite= false;
-let matcher = ["/", "*", "-", "+", "Enter", "Del"];
-let point = document.getElementById('point-btn');
-let dataStore = {operand1: null, operator: null, operand2: null};
-let ioDisplay = document.getElementById('io-display');
-let main = document.getElementsByTagName('main')[0];
-main.addEventListener('click', (e) => registerInput(e));
-document.addEventListener('keydown', (e)=>{
-    // if(e.key.match(/[0-9]/)) registerInput(e);
-    console.log(e.key)
-    if(e.key == 'Delete') clearAll();
-    else if(e.key == 'Backspace') deleteLastChar();
-})
+
 
