@@ -4,9 +4,11 @@ let point = document.getElementById('point-btn');
 let dataStore = {operand1: null, operator: null, operand2: null};
 let ioDisplay = document.getElementById('io-display');
 let main = document.getElementsByTagName('main')[0];
+let subDisplay = document.getElementById('sub-display');
+let mainDisplay = document.getElementById('main-display')
 let dotExists = false;
 
-ioDisplay.textContent = 0;
+mainDisplay.textContent = 0;
 //Click event listeners
 main.addEventListener('click', (e) => registerInput(e));
 //Keydown event listeners
@@ -20,7 +22,7 @@ document.addEventListener('keydown', (e)=>{
         else displayOutput(e.key);
         overwrite = false;
         if(dataStore['operand1']!=null && dataStore['operator']!=null){
-            dataStore['operand2'] = ioDisplay.textContent;
+            dataStore['operand2'] = mainDisplay.textContent;
         }
     }
     else if(e.key == 'Enter' || e.key == '+' || e.key == '-' || e.key == '*' || e.key == '/'){
@@ -29,6 +31,7 @@ document.addEventListener('keydown', (e)=>{
                 result = operate(dataStore['operand1'], dataStore['operator'], dataStore['operand2']);
                 overwrite = true;
                 displayOutput(result, overwrite);
+                mainDisplay.setAttribute('showing-results', true);
                 dataStore['operand1'] = result;
                 dataStore['operand2'] = null;
             }
@@ -38,7 +41,7 @@ document.addEventListener('keydown', (e)=>{
         }
         else{
             if(dataStore['operand1']==null){
-                dataStore['operand1'] =ioDisplay.textContent;
+                dataStore['operand1'] =mainDisplay.textContent;
                 overwrite = true;
                 dataStore['operator'] = e.key;
             }
@@ -46,6 +49,7 @@ document.addEventListener('keydown', (e)=>{
                 result = operate(dataStore['operand1'], dataStore['operator'], dataStore['operand2']);
                 overwrite = true;
                 displayOutput(result, overwrite);
+                mainDisplay.setAttribute('showing-results', true);
                 dataStore['operand1'] = result;
                 dataStore['operand2'] = null;
                 dataStore['operator'] = e.key;
@@ -58,12 +62,13 @@ document.addEventListener('keydown', (e)=>{
     else if(e.key == 'Delete') clearAll();
     else if(e.key == 'Backspace') deleteLastChar();
     else if(e.key == '.'){
-        if(ioDisplay.textContent == '0'){
+        if(mainDisplay.textContent == '0'){
             displayOutput('.');
             dotExists = true;
             overwrite = false;
         } 
-        else if(dotExists && dataStore['operand1'] != null && dataStore['operator'] != null){
+        else if(dotExists && dataStore['operand1'] != null && dataStore['operator'] != null && mainDisplay.getAttribute('showing-results') == true){
+            mainDisplay.setAttribute('showing-results', false); 
             displayOutput('0.', overwrite);
             dotExists = true;
             overwrite = false;
@@ -73,7 +78,7 @@ document.addEventListener('keydown', (e)=>{
         }
         else{
             if(overwrite == true){
-                displayOutput('.', overwrite);
+                displayOutput('0.', overwrite);
                 overwrite = false;
             } 
             else displayOutput('.')
@@ -81,7 +86,7 @@ document.addEventListener('keydown', (e)=>{
         }
         
     } ;
-    if(ioDisplay.textContent.includes('.')) dotExists = true;
+    if(mainDisplay.textContent.includes('.')) dotExists = true;
     else dotExists = false;
 })
 
@@ -120,7 +125,7 @@ function operate(num1, operator, num2){
             break;
     }
     if(returnVal%1 != 0) returnVal = Number(parseFloat(returnVal).toFixed(2));
-    console.log(`${num1} ${operator} ${num2} = ${returnVal}`);
+    subDisplay.textContent = `${num1} ${operator} ${num2} = ${returnVal}`;
     return returnVal;
 }
 function registerInput(e){
@@ -128,14 +133,15 @@ function registerInput(e){
     //Passes numeric key text content to display function, overwrite included if more appropriate (e.g. after pressing operator)
     if(e.target.classList.contains('numerals')){
         if(e.target == point){
-            if(ioDisplay.textContent == '0'){
+            if(mainDisplay.textContent == '0'){
                 displayOutput('.');
                 dotExists = true;
                 overwrite = false;
                 return 0;
             } 
-            else if(dotExists && dataStore['operand1'] != null && dataStore['operator'] != null){
+            else if(dotExists && dataStore['operand1'] != null && dataStore['operator'] != null && mainDisplay.getAttribute('showing-results') == true){
                 displayOutput('0.', overwrite);
+                mainDisplay.setAttribute('showing-results', false); 
                 dotExists = true;
                 overwrite = false;
                 return 0;
@@ -159,7 +165,7 @@ function registerInput(e){
         else displayOutput(e.target.textContent);
         overwrite = false;
         if(dataStore['operand1']!=null && dataStore['operator']!=null){
-            dataStore['operand2'] = ioDisplay.textContent;
+            dataStore['operand2'] = mainDisplay.textContent;
         }
     }
     // If you clicked an operator:
@@ -170,6 +176,7 @@ function registerInput(e){
                 result = operate(dataStore['operand1'], dataStore['operator'], dataStore['operand2']);
                 overwrite = true;
                 displayOutput(result, overwrite);
+                mainDisplay.setAttribute('showing-results', true);
                 dataStore['operand1'] = result;
                 dataStore['operand2'] = null;
             }
@@ -181,7 +188,7 @@ function registerInput(e){
         // If not then just store the current display input as operand1.
         else{
             if(dataStore['operand1']==null){
-                dataStore['operand1'] =ioDisplay.textContent;
+                dataStore['operand1'] =mainDisplay.textContent;
                 overwrite = true;
                 dataStore['operator'] = e.target.textContent;
             }
@@ -189,6 +196,7 @@ function registerInput(e){
                 result = operate(dataStore['operand1'], dataStore['operator'], dataStore['operand2']);
                 overwrite = true;
                 displayOutput(result, overwrite);
+                mainDisplay.setAttribute('showing-results', true);
                 dataStore['operand1'] = result;
                 dataStore['operand2'] = null;
                 dataStore['operator'] = e.target.textContent;
@@ -208,29 +216,30 @@ function registerInput(e){
         }
     }
     //  Check for point after every input + enable/disable accordingly
-    if(ioDisplay.textContent.includes('.')) dotExists = true;
+    if(mainDisplay.textContent.includes('.')) dotExists = true;
     else dotExists = false;
 }
 // Remove last character entry
 function deleteLastChar(){
-    let ioDisplayText = ioDisplay.textContent.split('');
-    ioDisplayText.pop();
-    ioDisplay.textContent = ioDisplayText.join('');
-    dataStore['operand1'] = ioDisplay.textContent;
+    let mainDisplayText = mainDisplay.textContent.split('');
+    mainDisplayText.pop();
+    mainDisplay.textContent = mainDisplayText.join('');
+    dataStore['operand1'] = mainDisplay.textContent;
     }
 
 // Set display content to none and reset dataStore values to default
 function clearAll(){
     dataStore = {operand1: null, operator: null, operand2: null};
-    ioDisplay.textContent = "0";
+    mainDisplay.textContent = "0";
+    subDisplay.textContent = "";
 }
 // Display output by appending to display unless overwrite explicitly stated
 function displayOutput(output, overwrite){
     if(overwrite){
-        ioDisplay.textContent = output;
+        mainDisplay.textContent = output;
         overwrite = false;
     } 
-    else ioDisplay.textContent += output;
+    else mainDisplay.textContent += output;
 }
 
 
