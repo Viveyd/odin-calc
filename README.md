@@ -1,1 +1,1 @@
-This was a project from https://www.theodinproject.com. Odin Calculator v1.0.
+This was a project from https://www.theodinproject.com. Odin Calculator v2.0.
