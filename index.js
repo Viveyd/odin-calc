@@ -74,7 +74,11 @@ document.addEventListener('keydown', (e)=>{
             overwrite = false;
         }
         else if(dotExists){
-            return 0;
+            if(overwrite == true){
+                displayOutput('0.', overwrite);
+                overwrite = false;
+            } 
+            else return 0;
         }
         else{
             if(overwrite == true){
